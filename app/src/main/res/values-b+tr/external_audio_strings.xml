@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="external_audio_title">Harici ses</string>
+    <string name="external_audio_message">Doğrudan bir ses bağlantısı girin (mp3, m4a, aac, mka, m3u8). Ses videoyla birleştirilir; duraklatma ve ileri/geri sarmada senkron kalır. Ses geç başlıyorsa, sesin başından kaç milisaniye atlanacağını girin.</string>
+    <string name="external_audio_add">Harici ses ekle (URL)</string>
+    <string name="external_audio_edit">Harici ses: %1$s (düzenle)</string>
+    <string name="external_audio_remove">Harici sesi kaldır</string>
+    <string name="external_audio_url_hint">Ses URL\'si (https://…)</string>
+    <string name="external_audio_offset_hint">Sesin başından atla (ms)</string>
+    <string name="external_audio_invalid_url">Geçerli bir http veya https bağlantısı girin</string>
+    <string name="external_audio_added">Harici ses eklendi</string>
+    <string name="external_audio_removed">Harici ses kaldırıldı</string>
+    <string name="external_audio_plugin_offset">Eklenti sesi senkronu: %1$d ms (düzenle)</string>
+    <string name="external_audio_offset_title">Ses senkronu</string>
+    <string name="external_audio_offset_message">Sesin başından kaç milisaniye atlansın? Ses geç başlıyorsa daha yüksek bir değer girin.</string>
+    <string name="external_audio_failed">Harici ses yüklenemedi ve kaldırıldı</string>
+</resources>
