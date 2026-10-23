@@ -814,4 +814,18 @@
     </plurals>
     <string name="player_is_live">Live</string>
     <string name="installed_plugins">Installed plugins</string>
+    <string name="external_audio_title">External audio</string>
+    <string name="external_audio_message">Enter a direct audio link. It will be played together with the video.</string>
+    <string name="external_audio_url_hint">Audio URL (https://…)</string>
+    <string name="external_audio_offset_hint">Offset (ms)</string>
+    <string name="external_audio_invalid_url">Invalid link, it must start with http:// or https://</string>
+    <string name="external_audio_added">External audio added</string>
+    <string name="external_audio_removed">External audio removed</string>
+    <string name="external_audio_failed">External audio failed to load, it was removed</string>
+    <string name="external_audio_add">Add external audio</string>
+    <string name="external_audio_edit">External audio: %1$s (tap to edit)</string>
+    <string name="external_audio_remove">Remove external audio</string>
+    <string name="external_audio_plugin_offset">Extension audio sync: %1$d ms</string>
+    <string name="external_audio_offset_title">Audio sync</string>
+    <string name="external_audio_offset_message">How many milliseconds to skip from the start of the extension audio.</string>
 </resources>
