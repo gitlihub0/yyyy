@@ -1547,6 +1547,50 @@ class GeneratorPlayer : FullScreenPlayer() {
                 }
                 audioList.addFooterView(externalAudioFooter)
 
+                // --- YENİ EKLENEN KOD: OTOMATİK DUBLAJ ARAMA ---
+                val searchAudioOnlineFooter: TextView = layoutInflater.inflate(R.layout.sort_bottom_footer_add_choice, null) as TextView
+                searchAudioOnlineFooter.text = "Türkçe Dublaj Ara (FullHD)"
+                
+                searchAudioOnlineFooter.setOnClickListener {
+                    val meta = getMetaData()
+                    val isMovie = currentMeta is ResultEpisode && (currentMeta as ResultEpisode).tvType.isMovieType()
+                    val imdbId = viewModel.state.generatorState?.response?.getImdbId()
+                    val queryName = meta.name ?: viewModel.state.generatorState?.response?.name
+
+                    showToast("Türkçe dublaj aranıyor...")
+
+                    ioSafe {
+                        val result = com.lagradost.cloudstream3.utils.audio.ExternalAudioSearcher.searchAudio(
+                            isMovie = isMovie,
+                            imdbId = imdbId,
+                            title = queryName,
+                            season = meta.season,
+                            episode = meta.episode
+                        )
+
+                        runOnMainThread {
+                            if (result != null) {
+                                val (url, headers) = result
+                                player.setExternalAudio(
+                                    ctx,
+                                    ExternalAudioData(
+                                        url = url,
+                                        name = "Türkçe Dublaj",
+                                        headers = headers
+                                    )
+                                )
+                                showToast("Dublaj bulundu ve uygulandı!")
+                                trackDialog.dismissSafe(activity)
+                                this@GeneratorPlayer.selectTrackDialog = null
+                            } else {
+                                showToast("Bu içerik için dublaj bulunamadı.")
+                            }
+                        }
+                    }
+                }
+                audioList.addFooterView(searchAudioOnlineFooter)
+                // --- YENİ EKLENEN KOD BİTİŞİ ---
+
                 // Audio that comes with the link from the extension, only the sync can be changed
                 if (player.hasPluginAudio()) {
                     val pluginOffsetFooter: TextView =
