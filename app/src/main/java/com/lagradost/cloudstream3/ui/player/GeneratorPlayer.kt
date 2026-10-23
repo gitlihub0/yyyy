@@ -205,7 +205,7 @@ class GeneratorPlayer : FullScreenPlayer() {
         // If subtitle is changed and user initiated -> Save the language
         if (subtitle != currentSelectedSubtitles && userInitiated) {
             val subtitleLanguageTagIETF = if (subtitle == null) {
-                "" // -> No Subtitles
+                "" // -> No Subtitles
             } else {
                 subtitle.getIETF_tag()
             }
@@ -1116,6 +1116,69 @@ class GeneratorPlayer : FullScreenPlayer() {
                         }
                         subtitleList.addFooterView(loadFromFirstSubsFooter)
                     }
+
+                    // --- YENİ EKLENEN KOD: OTOMATİK DUBLAJ ARAMA (ALTYAZI LİSTESİ ALTINDA) ---
+                    val searchAudioOnlineFooter: TextView = layoutInflater.inflate(R.layout.sort_bottom_footer_add_choice, null) as TextView
+                    searchAudioOnlineFooter.text = "Türkçe Dublaj Ara (FullHD)"
+
+                    // Sonuç bulunduğunda görünecek olan gizli buton
+                    val resultAudioFooter: TextView = layoutInflater.inflate(R.layout.sort_bottom_footer_add_choice, null) as TextView
+                    resultAudioFooter.isGone = true // Başlangıçta gizli
+
+                    searchAudioOnlineFooter.setOnClickListener {
+                        val meta = getMetaData()
+                        val isMovie = currentMeta is ResultEpisode && (currentMeta as ResultEpisode).tvType.isMovieType()
+                        val imdbId = viewModel.state.generatorState?.response?.getImdbId()
+                        val queryName = meta.name ?: viewModel.state.generatorState?.response?.name
+
+                        // Kullanıcıya arandığını göstermek için butonu pasifleştirip metni değiştiriyoruz
+                        searchAudioOnlineFooter.text = "Dublaj Aranıyor..."
+                        searchAudioOnlineFooter.isEnabled = false
+                        resultAudioFooter.isGone = true
+
+                        ioSafe {
+                            val result = com.lagradost.cloudstream3.utils.ExternalAudioSearcher.searchAudio(
+                                isMovie = isMovie,
+                                imdbId = imdbId,
+                                title = queryName,
+                                season = meta.season,
+                                episode = meta.episode
+                            )
+
+                            runOnMainThread {
+                                searchAudioOnlineFooter.text = "Türkçe Dublaj Ara (FullHD)"
+                                searchAudioOnlineFooter.isEnabled = true
+
+                                if (result != null) {
+                                    val (url, headers) = result
+                                    
+                                    // Ses bulundu, gizli butonu görünür yap ve tıklama özelliği ekle
+                                    resultAudioFooter.text = "✅ Dublaj Bulundu: $queryName (Uygula)"
+                                    resultAudioFooter.isVisible = true
+                                    
+                                    resultAudioFooter.setOnClickListener {
+                                        player.setExternalAudio(
+                                            ctx,
+                                            ExternalAudioData(
+                                                url = url,
+                                                name = "Türkçe Dublaj",
+                                                headers = headers
+                                            )
+                                        )
+                                        showToast("Dublaj uygulandı!")
+                                        sourceDialog.dismissSafe(activity)
+                                        this@GeneratorPlayer.selectSourceDialog = null
+                                    }
+                                } else {
+                                    showToast("Bu içerik için dublaj bulunamadı.")
+                                }
+                            }
+                        }
+                    }
+                    
+                    subtitleList.addFooterView(searchAudioOnlineFooter)
+                    subtitleList.addFooterView(resultAudioFooter)
+                    // --- YENİ EKLENEN KOD BİTİŞİ ---
                 }
 
                 var sourceIndex = 0
@@ -1546,50 +1609,6 @@ class GeneratorPlayer : FullScreenPlayer() {
                     showExternalAudioDialog(ctx, trackDialog)
                 }
                 audioList.addFooterView(externalAudioFooter)
-
-                // --- YENİ EKLENEN KOD: OTOMATİK DUBLAJ ARAMA ---
-                val searchAudioOnlineFooter: TextView = layoutInflater.inflate(R.layout.sort_bottom_footer_add_choice, null) as TextView
-                searchAudioOnlineFooter.text = "Türkçe Dublaj Ara (FullHD)"
-                
-                searchAudioOnlineFooter.setOnClickListener {
-                    val meta = getMetaData()
-                    val isMovie = currentMeta is ResultEpisode && (currentMeta as ResultEpisode).tvType.isMovieType()
-                    val imdbId = viewModel.state.generatorState?.response?.getImdbId()
-                    val queryName = meta.name ?: viewModel.state.generatorState?.response?.name
-
-                    showToast("Türkçe dublaj aranıyor...")
-
-                    ioSafe {
-                        val result = com.lagradost.cloudstream3.utils.ExternalAudioSearcher.searchAudio(
-                            isMovie = isMovie,
-                            imdbId = imdbId,
-                            title = queryName,
-                            season = meta.season,
-                            episode = meta.episode
-                        )
-
-                        runOnMainThread {
-                            if (result != null) {
-                                val (url, headers) = result
-                                player.setExternalAudio(
-                                    ctx,
-                                    ExternalAudioData(
-                                        url = url,
-                                        name = "Türkçe Dublaj",
-                                        headers = headers
-                                    )
-                                )
-                                showToast("Dublaj bulundu ve uygulandı!")
-                                trackDialog.dismissSafe(activity)
-                                this@GeneratorPlayer.selectTrackDialog = null
-                            } else {
-                                showToast("Bu içerik için dublaj bulunamadı.")
-                            }
-                        }
-                    }
-                }
-                audioList.addFooterView(searchAudioOnlineFooter)
-                // --- YENİ EKLENEN KOD BİTİŞİ ---
 
                 // Audio that comes with the link from the extension, only the sync can be changed
                 if (player.hasPluginAudio()) {
