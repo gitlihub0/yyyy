@@ -1560,7 +1560,7 @@ class GeneratorPlayer : FullScreenPlayer() {
                     showToast("Türkçe dublaj aranıyor...")
 
                     ioSafe {
-                        val result = com.lagradost.cloudstream3.utils.audio.ExternalAudioSearcher.searchAudio(
+                        val result = com.lagradost.cloudstream3.utils.ExternalAudioSearcher.searchAudio(
                             isMovie = isMovie,
                             imdbId = imdbId,
                             title = queryName,
